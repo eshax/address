@@ -6,6 +6,9 @@ import binascii
 # 58 character alphabet used
 BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
+import random
+
+
 def from_bytes (data, big_endian = False):
     if isinstance(data, str):
         data = bytearray(data)
@@ -15,7 +18,7 @@ def from_bytes (data, big_endian = False):
     for offset, byte in enumerate(data):
         num += byte << (offset * 8)
     return num
-    
+
 def base58_encode(version, public_address):
     """
     Gets a Base58Check string
@@ -48,6 +51,7 @@ def base58_encode(version, public_address):
 
 def get_private_key(hex_string):
     if sys.version_info.major > 2:
+        print(hex_string.zfill(64))
         return bytes.fromhex(hex_string.zfill(64))
     else:
         return bytearray.fromhex(hex_string.zfill(64))
@@ -70,11 +74,19 @@ def get_public_address(public_key):
     return address
 
 if __name__ == "__main__":
-    #private_key = get_private_key("FEEDB0BDEADBEEF")
-    private_key = get_private_key("18e14a7b6a307f426a94f8114701e7c8e774e7f9a47e2c2035db29a206321725")
-    print("private key: %s"%binascii.hexlify(private_key).decode().upper())
-    public_key = get_public_key(private_key)
-    print("public_key: %s"%binascii.hexlify(public_key).decode().upper())
-    public_address = get_public_address(public_key)
-    bitcoin_address = base58_encode("00", public_address)
-    print("Final address %s"%bitcoin_address)
+    n = 0
+    while n < 1000:
+        print()
+        r = random.randint(0, 2**256)
+        print(r)
+        hr = str(hex(r))[2:]
+        print(hr)
+        private_key = get_private_key(hr)
+        print("private key: %s"%binascii.hexlify(private_key).decode().upper())
+        public_key = get_public_key(private_key)
+        print("public_key: %s"%binascii.hexlify(public_key).decode().upper())
+        public_address = get_public_address(public_key)
+        bitcoin_address = base58_encode("00", public_address)
+        print("Final address %s"%bitcoin_address)
+        print()
+        n += 1
