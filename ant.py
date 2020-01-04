@@ -35,18 +35,21 @@ while 1:
     o = tb.find_one({"bitcoin_address": bitcoin_address}, {"_id": 0})
     print(o["private_key"])
     print(o["bitcoin_address"])
-    res = requests.get("https://blockchain.info/multiaddr?active=%s" % o["bitcoin_address"])
+    try:
+        res = requests.get("https://blockchain.info/multiaddr?active=%s" % o["bitcoin_address"])
 
-    if res.status_code == 200:
-        js = "%s" % res.text
-        # print(js)
-        js = json.loads(js)
-        balance = js["wallet"]["final_balance"]
-        for addr in js["addresses"]:
-            if balance == 0:
-                balance = addr["final_balance"]
-        if balance > 0.0:
-            db["balance"]["btc"].insert_one({"bitcoin_address": bitcoin_address, "balance": balance})
-            print(balance)
+        if res.status_code == 200:
+            js = "%s" % res.text
+            # print(js)
+            js = json.loads(js)
+            balance = js["wallet"]["final_balance"]
+            for addr in js["addresses"]:
+                if balance == 0:
+                    balance = addr["final_balance"]
+            if balance > 0.0:
+                db["balance"]["btc"].insert_one({"bitcoin_address": bitcoin_address, "balance": balance})
+                print(balance)
+    except:
+        print("requests error!")
 
     # break
