@@ -6,9 +6,6 @@ import binascii
 # 58 character alphabet used
 BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
-import random
-
-
 def from_bytes (data, big_endian = False):
     if isinstance(data, str):
         data = bytearray(data)
@@ -29,12 +26,12 @@ def base58_encode(version, public_address):
     else:
         version = bytearray.fromhex(version)
     firstSHA256 = hashlib.sha256(version + public_address)
-    print("first sha256: %s"%firstSHA256.hexdigest().upper())
+    # print("first sha256: %s"%firstSHA256.hexdigest().upper())
     secondSHA256 = hashlib.sha256(firstSHA256.digest())
-    print("second sha256: %s"%secondSHA256.hexdigest().upper())
+    # print("second sha256: %s"%secondSHA256.hexdigest().upper())
     checksum = secondSHA256.digest()[:4]
     payload = version + public_address + checksum
-    print("Hex address: %s"%binascii.hexlify(payload).decode().upper())
+    # print("Hex address: %s"%binascii.hexlify(payload).decode().upper())
     if sys.version_info.major > 2:
         result = int.from_bytes(payload, byteorder="big")
     else:
@@ -51,7 +48,7 @@ def base58_encode(version, public_address):
 
 def get_private_key(hex_string):
     if sys.version_info.major > 2:
-        print(hex_string.zfill(64))
+        # print(hex_string.zfill(64))
         return bytes.fromhex(hex_string.zfill(64))
     else:
         return bytearray.fromhex(hex_string.zfill(64))
@@ -66,27 +63,24 @@ def get_public_key(private_key):
 
 def get_public_address(public_key):
     address = hashlib.sha256(public_key).digest()
-    print("public key hash256: %s"%hashlib.sha256(public_key).hexdigest().upper())
+    # print("public key hash256: %s"%hashlib.sha256(public_key).hexdigest().upper())
     h = hashlib.new('ripemd160')
     h.update(address)
     address = h.digest()
-    print("RIPEMD-160: %s"%h.hexdigest().upper())
+    # print("RIPEMD-160: %s"%h.hexdigest().upper())
     return address
 
 if __name__ == "__main__":
-    n = 0
-    while n < 1000:
-        print()
-        r = random.randint(0, 2**256)
-        print(r)
-        hr = str(hex(r))[2:]
-        print(hr)
-        private_key = get_private_key(hr)
-        print("private key: %s"%binascii.hexlify(private_key).decode().upper())
-        public_key = get_public_key(private_key)
-        print("public_key: %s"%binascii.hexlify(public_key).decode().upper())
-        public_address = get_public_address(public_key)
-        bitcoin_address = base58_encode("00", public_address)
-        print("Final address %s"%bitcoin_address)
-        print()
-        n += 1
+
+    private_key = get_private_key("18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725")
+    public_key = get_public_key(private_key)
+    public_address = get_public_address(public_key)
+    bitcoin_address = base58_encode("00", public_address)
+
+    print()
+
+    print("    private key: %s"%binascii.hexlify(private_key).decode().upper())
+    print("     public key: %s"%binascii.hexlify(public_key).decode().upper())
+    print("bitcoin address: %s"%bitcoin_address)
+
+    print()
