@@ -30,30 +30,27 @@ while 1:
     bitcoin_address = btc.base58_encode("00", public_address)
     # print("bitcoin address : %s" % bitcoin_address)
     tb.insert_one({
-        "private_key": binascii.hexlify(private_key).decode().upper(),
-        "public_key": binascii.hexlify(public_key).decode().upper(),
-        "bitcoin_address": "%s" % bitcoin_address
+        "pk": binascii.hexlify(private_key).decode().upper(),
+        # "public_key": binascii.hexlify(public_key).decode().upper(),
+        "addr": "%s" % bitcoin_address
     })
-    o = tb.find_one({"bitcoin_address": bitcoin_address}, {"_id": 0})
-    print(o["private_key"])
-    print(o["bitcoin_address"])
+    o = tb.find_one({"addr": bitcoin_address}, {"_id": 0})
+    print(o["pk"])
+    print(o["addr"])
     try:
-        res = requests.get("https://blockchain.info/multiaddr?active=%s" % o["bitcoin_address"], timeout=5)
+        res = requests.get("https://blockchain.info/multiaddr?active=%s" % o["addr"], timeout=5)
 
         if res.status_code == 200:
             js = "%s" % res.text
-            # print(js)
             js = json.loads(js)
-            print(js["addresses"])
-            db["addresses"]["btc"].insert_one({"bitcoin_address": bitcoin_address, "addresses": js["addresses"]})
-            # print(js["wallet"])
-            # db["wallet"]["btc"].insert_one({"bitcoin_address": bitcoin_address, "wallet": js["wallet"]})
             balance = js["wallet"]["final_balance"]
             for addr in js["addresses"]:
+                print(addr)
+                db["addresses"]["btc"].insert_one(addr)
                 if balance == 0:
                     balance = addr["final_balance"]
             if balance > 0.0:
-                db["balance"]["btc"].insert_one({"bitcoin_address": bitcoin_address, "balance": balance})
+                db["balance"]["btc"].insert_one({"addr": bitcoin_address, "balance": balance})
                 print(balance)
     except:
         print("requests error!")
