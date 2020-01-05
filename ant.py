@@ -6,11 +6,13 @@ import binascii
 import os
 import requests
 import json
+import time
 
 db = pymongo.MongoClient(host='192.168.31.19', port=27017)
 tb = db["address"]["btc"]
 
 r = random.randint(0, 2**256)
+r = 1
 
 # mdb.btc.insert_one({""})
 while 1:
@@ -36,12 +38,16 @@ while 1:
     print(o["private_key"])
     print(o["bitcoin_address"])
     try:
-        res = requests.get("https://blockchain.info/multiaddr?active=%s" % o["bitcoin_address"])
+        res = requests.get("https://blockchain.info/multiaddr?active=%s" % o["bitcoin_address"], timeout=5)
 
         if res.status_code == 200:
             js = "%s" % res.text
             # print(js)
             js = json.loads(js)
+            print(js["addresses"])
+            db["addresses"]["btc"].insert_one({"bitcoin_address": bitcoin_address, "addresses": js["addresses"]})
+            # print(js["wallet"])
+            # db["wallet"]["btc"].insert_one({"bitcoin_address": bitcoin_address, "wallet": js["wallet"]})
             balance = js["wallet"]["final_balance"]
             for addr in js["addresses"]:
                 if balance == 0:
@@ -51,5 +57,6 @@ while 1:
                 print(balance)
     except:
         print("requests error!")
+        time.sleep(0.1)
 
     # break
