@@ -30,15 +30,15 @@ while 1:
     bitcoin_address = btc.base58_encode("00", public_address)
     # print("bitcoin address : %s" % bitcoin_address)
     tb.insert_one({
-        "pk": binascii.hexlify(private_key).decode().upper(),
+        "private_key": binascii.hexlify(private_key).decode().upper(),
         # "public_key": binascii.hexlify(public_key).decode().upper(),
-        "addr": "%s" % bitcoin_address
+        "address": "%s" % bitcoin_address
     })
-    o = tb.find_one({"addr": bitcoin_address}, {"_id": 0})
-    print(o["pk"])
-    print(o["addr"])
+    o = tb.find_one({"address": bitcoin_address}, {"_id": 0})
+    print(o["private_key"])
+    print(o["address"])
     try:
-        res = requests.get("https://blockchain.info/multiaddr?active=%s" % o["addr"], timeout=5)
+        res = requests.get("https://blockchain.info/multiaddr?active=%s" % o["address"], timeout=5)
 
         if res.status_code == 200:
             js = "%s" % res.text
