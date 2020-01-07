@@ -7,17 +7,18 @@ import os
 import requests
 import json
 import time
+from conf import conf
 
-db = pymongo.MongoClient(host='192.168.31.19', port=27017)
+db = pymongo.MongoClient(host=conf.mongo.ip, port=conf.mongo.port)
 tb = db["address"]["btc"]
 
 r = random.randint(0, 2**256)
 r = 1
 
-# mdb.btc.insert_one({""})
 while 1:
     print()
     r += 1
+    r = random.randint(0, 2**256)
     # print(r)
     hr = str(hex(r))[2:]
     # print(hr)
